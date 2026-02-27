@@ -3,9 +3,8 @@ title: "SDS 322E: Project 1 Report"
 output: html_document
 ---
 
-## Names and EIDs of Group Members
+### Vriti Urav Patel (eid), Heather Kim (eid), Adrien Chew (auc99)
 
-testing
 
 ## Load the Data
 
