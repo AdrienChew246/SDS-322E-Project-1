@@ -45,11 +45,17 @@ How many active (3x3x3) speedcubers are there registered with the WCA? For this 
 
 
 ```{r}
-## Add your code here
+active_cubers <- results %>%
+  left_join(competitions, by = c("competitionId" = "id")) %>%
+  filter(year >= 2022 & year <= 2024) %>%
+  group_by(personId) %>%
+  summarize(comp_count = n_distinct(competitionId)) %>%
+  filter(comp_count >= 2)
 
+nrow(active_cubers)
 ```
 
-**Write your answer here.**
+**There are 39482 active speedcubers registered with the WCA.**
 
 ### World Records
 
@@ -58,33 +64,57 @@ This question has two parts:
 1. Who holds the current world record single? 
 
 ```{r}
-## Add your code here
+# Find current world record single
+current_wr <- rankssingle %>%
+  filter(worldRank == 1) %>%
+  left_join(persons, by = c("personId" = "id")) %>%
+  select(name, personId, best)
 
+print(current_wr)
 ```
 
-**Write your answer here.**
+**Max Park holds the current world record single.**
 
 
 On what date was this record set?
 
 
 ```{r}
-## Add your code here
+# Get date of world record
+current_wr_details <- results %>%
+  filter(personId == current_wr$personId[1], best == current_wr$best[1]) %>%
+  left_join(competitions, by = c("competitionId" = "id")) %>%
+  mutate(date = as.Date(paste(year, month, day, sep = "-"))) %>%
+  arrange(date) %>% # Get the first time they hit this mark
+  slice(1) %>%
+  select(name, best, date, competitionId)
 
+print(current_wr_details)
 ```
 
-**Write your answer here.**
+**This record was set on 2023-06-11.**
 
 
 
 2. Who *previously* held the world record single? On what date was this previous record set?
 
 ```{r}
-## Add your code here
+# Get previous world record
+wr_history <- results %>%
+  filter(regionalSingleRecord == "WR") %>%
+  left_join(competitions, by = c("competitionId" = "id")) %>%
+  mutate(date = as.Date(paste(year, month, day, sep = "-"))) %>%
+  arrange(desc(date), best) # Sort by date descending, then time
 
+previous_wr <- wr_history %>%
+  filter(best > current_wr$best[1]) %>% 
+  slice(1) %>%
+  select(personName, personId, best, date)
+
+print(previous_wr)
 ```
 
-**Write your answer here.**
+**Yusheng Du previously held this record. It was set on 2018-11-24.**
 
 
 ### Regional Rankings
